@@ -3,8 +3,9 @@
         <title>Users</title>
     </Head>
     <div class="row">
-        <div class="col">
+        <div class="col d-flex flex-row align-items-center">
             <h1>Users</h1>
+            <Link v-if="can.createUser" href="/users/create" class="btn btn-primary ms-3">+</Link> 
         </div>
         <div class="col d-flex align-items-center">
             <div class="input-group">
@@ -24,10 +25,10 @@
         <div class="col">
             <table class="table table-hover">
                 <tbody>
-                    <tr  v-for="user in users.data" :key="user.id">
+                    <tr v-for="user in users.data" :key="user.id">
                         <td> {{ user.name}} </td>
                         <td class="text-end"> 
-                            <Link :href="`users/${user.id}/edit`">Edit</Link>
+                            <Link v-if="user.can.update" :href="`users/${user.id}/edit`">Edit</Link>
                         </td>
                     </tr>
                 </tbody>
@@ -49,11 +50,14 @@
 
 <script>
 
+import debounce from "lodash/debounce";
+
 export default {
     props: {
         time: String,
         users: Object,
         filters: Object,
+        can: Object
     },
 
     data() {
@@ -63,17 +67,23 @@ export default {
     },
 
     watch: {
+
         search(value) {
-            this.$inertia.get('/users', { search: value }, {
-                preserveState: true,
-                replace: true
-            });
+            this.doSearch(value)
         }
     },
+
     methods: {
         clear() {
             this.search = '';
-        }
+        },
+
+        doSearch: debounce(function(value){
+            this.$inertia.get('/users', { search: value }, {
+                preserveState: true,
+                replace: true
+            })
+        }, 500)
     },
 };
 

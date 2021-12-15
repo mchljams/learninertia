@@ -10,11 +10,14 @@
       <input 
         v-model="form.name" 
         class="form-control" 
+        :class="{'is-invalid': form.errors.name}"
         type="text" 
         name="name" 
         id="name" 
-        required 
+        aria-describedby="nameValidation"
+        required
       />
+      <div v-if="form.errors.name" v-text="form.errors.name" id="nameValidation" class="invalid-feedback"></div>
     </div>
 
     <div class="mb-3">
@@ -23,11 +26,15 @@
       <input
         v-model="form.email"
         class="form-control"
+        :class="{'is-invalid': form.errors.email}"
         type="email"
         name="email"
         id="email"
+        aria-describedby="emailValidation"
         required
       />
+
+      <div v-if="form.errors.email" v-text="form.errors.email" id="emailValidation" class="invalid-feedback"></div>
     </div>
 
     <div class="mb-3">
@@ -36,33 +43,42 @@
       <input
         v-model="form.password"
         class="form-control"
+        :class="{'is-invalid': form.errors.password}"
         type="password"
         name="password"
         id="password"
+        aria-describedby="passwordValidation"
         required
       />
+      <div v-if="form.errors.password" v-text="form.errors.password" id="passwordValidation" class="invalid-feedback"></div>
     </div>
 
+
     <div class="mb-3">
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="submit" class="btn btn-primary" :disabled="form.processing">Submit</button>
     </div>
   </form>
 </template>
 
 <script>
-import { reactive } from 'vue';
-import { Inertia } from '@inertiajs/inertia'
+import { useForm} from '@inertiajs/inertia-vue3'
 
 export default {
+
+    props: {
+        errors: Object,
+    },
+
     setup () {
-        const form = reactive({
+
+        const form = useForm({
             name: null,
             email: null,
             password: null,
         })
 
         function submit() {
-            Inertia.post('/users', form)
+            form.post('/users')
         }
 
         return { form, submit }
